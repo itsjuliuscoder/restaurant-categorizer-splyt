@@ -23,7 +23,7 @@ const getYelpBusinesses = async (query, location) => {
       
       //console.log("This from Yelp", response.data.businesses);
       return response.data.businesses;
-  
+      
   
     } catch (error) {
       console.error("Yelp API Error:", error.message);

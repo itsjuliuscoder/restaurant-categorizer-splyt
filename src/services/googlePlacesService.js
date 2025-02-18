@@ -18,32 +18,68 @@ const getPlaces = async (query, city, experience) => {
     // console.log(`Google API Response for ${query} in ${city}:`, data);
 
     if (data.results && data.results.length > 0) {
-      // Sort the results by rating in descending order
-      const sortedResults = data.results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        // Sort results by rating (highest first)
+        const sortedResults = data.results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
-      // console.log("google response", sortedResults);
-      return sortedResults;
+        // Fetch additional details (phone number, photos) for each place
+        const detailedResults = await Promise.all(sortedResults.map(async (place) => {
+            const details = await getPlaceDetails(place.place_id);
+            return {
+                name: place.name,
+                address: place.formatted_address,
+                rating: place.rating || 'N/A',
+                phone: details.phone,
+                photo: details.photo,
+                place_id: place.place_id
+            };
+        }));
+
+        return detailedResults;
     }
 
     return []; // Return an empty array if no results are found
-    // return data.results;
 };
 
-const getCoordinates = async (city) => {
-  const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(city)}&key=${GOOGLE_API_KEY}`;
-  try {
-    const response = await axios.get(geocodeUrl);
-    const location = response.data.results[0]?.geometry?.location;
+// Function to get additional place details (phone number, photos)
+const getPlaceDetails = async (placeId) => {
+    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json`;
+    const params = {
+        place_id: placeId,
+        fields: 'formatted_phone_number,photos',
+        key: GOOGLE_API_KEY,
+    };
 
-    if (!location) {
-      throw new Error(`Could not fetch coordinates for city: ${city}`);
+    try {
+        const { data } = await axios.get(detailsUrl, { params });
+
+        return {
+            phone: data.result?.formatted_phone_number || 'Not available',
+            photo: data.result?.photos?.length
+                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${data.result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
+                : 'No image available'
+        };
+    } catch (error) {
+        console.error(`Error fetching details for place ID ${placeId}:`, error.message);
+        return { phone: 'Not available', photo: 'No image available' };
     }
+};
 
-    return `${location.lat},${location.lng}`;
-  } catch (error) {
-    console.error(`Error fetching coordinates for ${city}:`, error.message);
-    throw error;
-  }
+// Function to get city coordinates
+const getCoordinates = async (city) => {
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(city)}&key=${GOOGLE_API_KEY}`;
+    try {
+        const response = await axios.get(geocodeUrl);
+        const location = response.data.results[0]?.geometry?.location;
+
+        if (!location) {
+            throw new Error(`Could not fetch coordinates for city: ${city}`);
+        }
+
+        return `${location.lat},${location.lng}`;
+    } catch (error) {
+        console.error(`Error fetching coordinates for ${city}:`, error.message);
+        throw error;
+    }
 };
 
 module.exports = { getPlaces, getCoordinates };
