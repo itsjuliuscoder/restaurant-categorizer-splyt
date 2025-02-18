@@ -13,7 +13,8 @@ const searchRestaurants = async (req, res, next) => {
         // Query APIs
         const googleResults = await getPlaces(categories.join(' OR '), location, experience);
         const yelpResults = await getYelpBusinesses(categories.join(','), location);
-
+        
+        // console.log('Yelp Results:', yelpResults);
         // Combine and return results
         const results = combineResults(googleResults, yelpResults);
         res.json(results);

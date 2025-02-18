@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { GOOGLE_API_KEY } = require('../config/config');
+const { types } = require('@babel/core');
 
 const getPlaces = async (query, city, experience) => {
     console.log('Google Query:', query, 'These are the others', city, experience);
@@ -15,7 +16,7 @@ const getPlaces = async (query, city, experience) => {
     };
     const { data } = await axios.get(url, { params });
 
-    // console.log(`Google API Response for ${query} in ${city}:`, data);
+    console.log(`Google API Response for ${query} in ${city}:`, data);
 
     if (data.results && data.results.length > 0) {
         // Sort results by rating (highest first)
@@ -29,8 +30,9 @@ const getPlaces = async (query, city, experience) => {
                 address: place.formatted_address,
                 rating: place.rating || 'N/A',
                 phone: details.phone,
-                photo: details.photo,
-                place_id: place.place_id
+                image_url: details.photo,
+                place_id: place.place_id,
+                types: place.types,
             };
         }));
 
