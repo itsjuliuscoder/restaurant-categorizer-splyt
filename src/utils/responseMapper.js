@@ -17,7 +17,7 @@ const mapGooglePlaces = (places) => {
         address: place.formatted_address || 'Address not available',
         rating: place.rating || 'N/A',
         phone: place.phone || 'Not available',
-        image_url: place.image_url || 'No image available',
+        image_url: place.image_url,
         place_id: place.place_id,
         categories: place.types,
         source: 'Google'
