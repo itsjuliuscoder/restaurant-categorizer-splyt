@@ -28,7 +28,7 @@ const combineResults = (googleResults, yelpResults) => {
     const mappedGoogleResults = mapGooglePlaces(googleResults);
     const mappedYelpResults = mapYelpBusinesses(yelpResults);
 
-    return [...mappedGoogleResults, ...mappedYelpResults];
+    return [...mappedYelpResults, ...mappedGoogleResults];
 };
 
 module.exports = { combineResults };
