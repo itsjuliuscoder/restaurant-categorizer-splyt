@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('./routes/restaurantRoutes');
 const errorHandler = require('./middleware/errorHandler');
+require('./cronJob');
 
 const app = express();
 
