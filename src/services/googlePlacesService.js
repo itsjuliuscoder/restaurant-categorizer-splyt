@@ -54,6 +54,8 @@ const getPlaceDetails = async (placeId) => {
     try {
         const { data } = await axios.get(detailsUrl, { params });
 
+        // console.log(`This is the restaurant details ${JSON.stringify(data)}`);
+
         return {
             phone: data.result?.formatted_phone_number || 'Not available',
             photo: data.result?.photos?.length

@@ -14,7 +14,7 @@ const mapYelpBusinesses = (businesses) => {
 const mapGooglePlaces = (places) => {
     return places.map(place => ({
         name: place.name,
-        address: place.formatted_address || 'Address not available',
+        address: place.address || 'Address not available',
         rating: place.rating || 'N/A',
         phone: place.phone || 'Not available',
         image_url: place.image_url,
