@@ -1,22 +1,26 @@
 const axios = require('axios');
 const { GOOGLE_API_KEY } = require('../config/config');
-const { types } = require('@babel/core');
+const { mapCustomerPriceToGoogle, mapGooglePriceToRange } = require('../utils/priceMapper');
 
-const getPlaces = async (query, city, experience) => {
-    console.log('Google Query:', query, 'These are the others', city, experience);
+const getPlaces = async (query, city, experience, price) => {
+    console.log('Google Query:', query, 'These are the others', city, experience, price);
+    
     const detailExperience = experience + ' in ' + city;
     const location = await getCoordinates(city);
+    const { min, max } = mapCustomerPriceToGoogle(price);
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json`;
     const params = {
         query: detailExperience,
         type: query,
         location,
         radius: 10000, // 10km radius
+        minprice: min,
+        maxprice: max,
         key: GOOGLE_API_KEY,
     };
     const { data } = await axios.get(url, { params });
 
-    console.log(`Google API Response for ${query} in ${city}:`, data);
+    // console.log(`Google API Response for ${query} in ${city}:`, data);
 
     if (data.results && data.results.length > 0) {
         // Sort results by rating (highest first)
@@ -29,6 +33,7 @@ const getPlaces = async (query, city, experience) => {
                 name: place.name,
                 address: place.formatted_address,
                 rating: place.rating || 'N/A',
+                price: mapGooglePriceToRange(place.price_level),
                 phone: details.phone,
                 image_url: details.photo,
                 place_id: place.place_id,
@@ -53,8 +58,6 @@ const getPlaceDetails = async (placeId) => {
 
     try {
         const { data } = await axios.get(detailsUrl, { params });
-
-        // console.log(`This is the restaurant details ${JSON.stringify(data)}`);
 
         return {
             phone: data.result?.formatted_phone_number || 'Not available',

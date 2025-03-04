@@ -5,14 +5,16 @@ const { matchCategories } = require('../utils/categorizer');
 
 const searchRestaurants = async (req, res, next) => {
     try {
-        const { experience, location } = req.body;
+        const { experience, location, budget } = req.body;
 
         // Get matching categories
         const categories = matchCategories(experience);
 
+        const price = budget
+
         // Query APIs
-        const googleResults = await getPlaces(categories.join(' OR '), location, experience);
-        const yelpResults = await getYelpBusinesses(categories.join(','), location);
+        const googleResults = await getPlaces(categories.join(' OR '), location, experience, price);
+        const yelpResults = await getYelpBusinesses(categories.join(','), location, price);
         
         // console.log('Yelp Results:', yelpResults);
         // Combine and return results
