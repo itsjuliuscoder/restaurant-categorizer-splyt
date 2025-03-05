@@ -8,6 +8,7 @@ const mapYelpBusinesses = (businesses) => {
         yelp_id: business.id,
         categories: business.categories, // Corrected variable name
         price: business.price || 'Price not available', // Include price
+        link: business.link || 'No link available',
         source: 'Yelp'
     }));
 };
@@ -22,6 +23,7 @@ const mapGooglePlaces = (places) => {
         place_id: place.place_id,
         categories: place.types,
         price: place.price || 'Price not available', // Include price
+        link: place.google_maps_url || 'No link available',
         source: 'Google'
     }));
 };

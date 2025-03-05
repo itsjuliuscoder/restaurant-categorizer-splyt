@@ -34,10 +34,11 @@ const getYelpBusinesses = async (query, location, price) => {
             image_url: business.image_url || 'No image available',
             categories: business.categories ? business.categories.map((category) => category.title) : [], // Handle missing categories
             yelp_id: business.id,
+            link: business.url,
             source: 'Yelp'
         }));
 
-        console.log(`Yelp API Response for ${query} in ${location}:`, businesses);
+        //console.log(`Yelp API Response for ${query} in ${location}:`, response.data);
 
         return businesses;
     } catch (error) {

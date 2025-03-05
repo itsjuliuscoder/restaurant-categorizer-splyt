@@ -38,8 +38,11 @@ const getPlaces = async (query, city, experience, price) => {
                 image_url: details.photo,
                 place_id: place.place_id,
                 types: place.types,
+                google_maps_url: details.url
             };
         }));
+
+        // console.log(`Google Places Results for ${query} in ${city}:`, detailedResults);
 
         return detailedResults;
     }
@@ -52,18 +55,19 @@ const getPlaceDetails = async (placeId) => {
     const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json`;
     const params = {
         place_id: placeId,
-        fields: 'formatted_phone_number,photos',
+        fields: 'formatted_phone_number,photos,url',
         key: GOOGLE_API_KEY,
     };
 
     try {
         const { data } = await axios.get(detailsUrl, { params });
-
+        // console.log(`Google Place Details for ${placeId}:`, data.result);
         return {
             phone: data.result?.formatted_phone_number || 'Not available',
             photo: data.result?.photos?.length
-                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${data.result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-                : 'No image available'
+                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=${data.result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
+                : 'No image available',
+            url: data.result?.url || 'No link available'
         };
     } catch (error) {
         console.error(`Error fetching details for place ID ${placeId}:`, error.message);
