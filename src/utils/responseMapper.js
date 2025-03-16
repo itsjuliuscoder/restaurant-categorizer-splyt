@@ -1,14 +1,14 @@
 const mapYelpBusinesses = (businesses) => {
     return businesses.map(business => ({
         name: business.name,
-        address: business.address || 'Address not available',
+        address: business.location?.display_address?.join(', ') || 'Address not available',
         rating: business.rating || 'N/A',
-        phone: business.phone || 'Not available',
+        phone: business.display_phone || 'Not available',
         image_url: business.image_url || 'No image available',
         yelp_id: business.id,
-        categories: business.categories, // Corrected variable name
+        categories: business.categories ? business.categories.map((category) => category.title) : [], // Handle missing categories
         price: business.price || 'Price not available', // Include price
-        link: business.link || 'No link available',
+        link: business.url || 'No link available',
         source: 'Yelp'
     }));
 };
@@ -29,10 +29,22 @@ const mapGooglePlaces = (places) => {
 };
 
 const combineResults = (googleResults, yelpResults) => {
-    const mappedGoogleResults = mapGooglePlaces(googleResults);
-    const mappedYelpResults = mapYelpBusinesses(yelpResults);
+    let mappedGoogleResults = [];
+    let mappedYelpResults = [];
 
-    return [...mappedYelpResults, ...mappedGoogleResults];
+    try {
+        mappedGoogleResults = mapGooglePlaces(googleResults);
+    } catch (error) {
+        console.error("Error mapping Google Places results:", error.message);
+    }
+
+    try {
+        mappedYelpResults = mapYelpBusinesses(yelpResults);
+    } catch (error) {
+        console.error("Error mapping Yelp results:", error.message);
+    }
+
+    return [...mappedGoogleResults, ...mappedYelpResults];
 };
 
 module.exports = { combineResults };
