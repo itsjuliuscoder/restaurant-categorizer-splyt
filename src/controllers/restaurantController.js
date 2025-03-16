@@ -10,13 +10,24 @@ const searchRestaurants = async (req, res, next) => {
         // Get matching categories
         const categories = matchCategories(experience);
 
-        const price = budget
+        const price = budget;
 
         // Query APIs
-        const googleResults = await getPlaces(categories.join(' OR '), location, experience, price);
-        const yelpResults = await getYelpBusinesses(categories.join(','), location, price);
-        
-        // console.log('Yelp Results:', yelpResults);
+        let googleResults = [];
+        let yelpResults = [];
+
+        try {
+            googleResults = await getPlaces(categories.join(' OR '), location, experience, price);
+        } catch (error) {
+            console.error("Error fetching Google Places results:", error.message);
+        }
+
+        try {
+            yelpResults = await getYelpBusinesses(categories.join(','), location, price);
+        } catch (error) {
+            console.error("Error fetching Yelp results:", error.message);
+        }
+
         // Combine and return results
         const results = combineResults(googleResults, yelpResults);
         res.json(results);
