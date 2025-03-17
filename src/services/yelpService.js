@@ -10,11 +10,11 @@ const getYelpBusinesses = async (query, location, price) => {
     const priceFilter = mapCustomerPriceToYelp(price);
 
     console.log('Yelp Price Filter:', priceFilter);
-
+    const APIKEY = "BMws29bk-FexA8CCzosWEaapxa1VbYdM66ZNfxGN16daBtZx-SJ7MbFsAmZnZAtTi0qY9nQZzLS7TgdZHFhKkNWug4BT8UqF2pn5DmNm59RzGxujVXHK_jkKhIbYZ3Yx";
     try {
         const response = await axios.get(url, {
             headers: {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${APIKEY}`,
             },
             params: {
                 term: 'restaurants',
@@ -24,6 +24,8 @@ const getYelpBusinesses = async (query, location, price) => {
                 price: priceFilter, // Use mapped price level
             },
         });
+
+        // console.log("Yelp API Response:", JSON.stringify(response.data));
 
         const businesses = response.data.businesses.map((business) => ({
             name: business.name,
@@ -43,6 +45,7 @@ const getYelpBusinesses = async (query, location, price) => {
         return businesses;
     } catch (error) {
         console.error("Yelp API Error:", error.message);
+        console.error("Yelp API Error Response Data:", error.response.data);
         throw error;
     }
 };

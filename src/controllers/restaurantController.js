@@ -17,15 +17,14 @@ const searchRestaurants = async (req, res, next) => {
         let yelpResults = [];
 
         try {
-            googleResults = await getPlaces(categories.join(' OR '), location, experience, price);
+            const [googleResponse, yelpResponse] = await Promise.all([
+                getPlaces(categories.join(' OR '), location, experience, price),
+                getYelpBusinesses(categories.join(','), location, price)
+            ]);
+            googleResults = googleResponse;
+            yelpResults = yelpResponse;
         } catch (error) {
-            console.error("Error fetching Google Places results:", error.message);
-        }
-
-        try {
-            yelpResults = await getYelpBusinesses(categories.join(','), location, price);
-        } catch (error) {
-            console.error("Error fetching Yelp results:", error.message);
+            console.error("Error fetching API results:", error.message);
         }
 
         // Combine and return results

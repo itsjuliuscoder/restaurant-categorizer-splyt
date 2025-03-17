@@ -1,50 +1,50 @@
 const mapYelpBusinesses = (businesses) => {
-    return businesses.map(business => ({
-        name: business.name,
-        address: business.location?.display_address?.join(', ') || 'Address not available',
-        rating: business.rating || 'N/A',
-        phone: business.display_phone || 'Not available',
-        image_url: business.image_url || 'No image available',
-        yelp_id: business.id,
-        categories: business.categories ? business.categories.map((category) => category.title) : [], // Handle missing categories
-        price: business.price || 'Price not available', // Include price
-        link: business.url || 'No link available',
-        source: 'Yelp'
-    }));
+    try {
+        return businesses.map(business => ({
+            name: business.name,
+            address: business.address,
+            rating: business.rating || 'N/A',
+            phone: business.phone || 'Not available',
+            image_url: business.image_url || 'No image available',
+            yelp_id: business.id,
+            categories: business.categories,
+            price: business.price || 'Price not available',
+            link: business.link || 'No link available',
+            source: 'Yelp'
+        }));
+    } catch (error) {
+        console.error("Error mapping Yelp businesses:", error.message);
+        return []; // Return an empty array if mapping fails
+    }
 };
 
 const mapGooglePlaces = (places) => {
-    return places.map(place => ({
-        name: place.name,
-        address: place.address || 'Address not available',
-        rating: place.rating || 'N/A',
-        phone: place.phone || 'Not available',
-        image_url: place.image_url || 'No image available',
-        place_id: place.place_id,
-        categories: place.types,
-        price: place.price || 'Price not available', // Include price
-        link: place.google_maps_url || 'No link available',
-        source: 'Google'
-    }));
+    try {
+        return places.map(place => ({
+            name: place.name,
+            address: place.address || 'Address not available',
+            rating: place.rating || 'N/A',
+            phone: place.phone || 'Not available',
+            image_url: place.image_url || 'No image available',
+            place_id: place.place_id,
+            categories: place.types || [], // Handle missing categories
+            price: place.price || 'Price not available',
+            link: place.google_maps_url || 'No link available',
+            source: 'Google'
+        }));
+    } catch (error) {
+        console.error("Error mapping Google Places:", error.message);
+        return []; // Return an empty array if mapping fails
+    }
 };
 
 const combineResults = (googleResults, yelpResults) => {
-    let mappedGoogleResults = [];
-    let mappedYelpResults = [];
+    // Map results in parallel
+    const mappedGoogleResults = mapGooglePlaces(googleResults);
+    const mappedYelpResults = mapYelpBusinesses(yelpResults);
 
-    try {
-        mappedGoogleResults = mapGooglePlaces(googleResults);
-    } catch (error) {
-        console.error("Error mapping Google Places results:", error.message);
-    }
-
-    try {
-        mappedYelpResults = mapYelpBusinesses(yelpResults);
-    } catch (error) {
-        console.error("Error mapping Yelp results:", error.message);
-    }
-
-    return [...mappedGoogleResults, ...mappedYelpResults];
+    // Combine results
+    return [...mappedYelpResults, ...mappedGoogleResults];
 };
 
 module.exports = { combineResults };
